@@ -1,5 +1,5 @@
 const tracks = [
-  ["Current Se Chali Zindagi", "Desi Electrician Mix", "5:45", "Kishore_Kumar_-_Mere_mehboob_part_1_(mp3.pm).mp3"],
+  ["Current Se Chali Zindagi", "Desi Electrician Mix", "3:51", "Kishore_Kumar_-_Mere_mehboob_part_1_(mp3.pm).mp3"],
   ["Wiring Wale Yaar", "Electrician Work Mode", "4:20", ""],
   ["Switch On • Mood On", "Power Vibes", "3:58", ""],
   ["Roshni Ka Hunar", "Electrician Playlist", "4:10", ""],
