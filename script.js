@@ -1,6 +1,6 @@
 const tracks = [
   ["Current Se Chali Zindagi", "Desi Electrician Mix", "Kishore_Kumar_-_Mere_mehboob_part_1_(mp3.pm).mp3"],
-  ["Wiring Wale Yaar", "Electrician Work Mode", "song2.mp3"],
+  ["Wiring Wale Yaar", "Electrician Work Mode", "Yeh_Dil_Aashiqana___Kumar_Sanu___Alka_Yagnik___Nadeem-Shravan___90_s_Romantic_Song(256k).mp3"],
   ["Switch On • Mood On", "Power Vibes", "song3.mp3"],
   ["Roshni Ka Hunar", "Electrician Playlist", "song4.mp3"],
   ["Kaam Apna, Attitude Alag", "Desi Work Mix", "song5.mp3"],
