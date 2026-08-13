@@ -1,85 +1,154 @@
 const tracks = [
-  ["Current Se Chali Zindagi", "Desi Electrician Mix", "3:51", "Kishore_Kumar_-_Mere_mehboob_part_1_(mp3.pm).mp3"],
-  ["Wiring Wale Yaar", "Electrician Work Mode", "5:46", "Yeh_Dil_Aashiqana___Kumar_Sanu___Alka_Yagnik___Nadeem-Shravan___90_s_Romantic_Song(256k).mp3"],
-  ["Switch On • Mood On", "Power Vibes", "3:58", ""],
-  ["Roshni Ka Hunar", "Electrician Playlist", "4:10", ""],
-  ["Kaam Apna, Attitude Alag", "Desi Work Mix", "4:05", ""],
-  ["Meter Se Mood Tak", "Electrician Night Mix", "4:30", ""]
+  ["Current Se Chali Zindagi", "Desi Electrician Mix", "Kishore_Kumar_-_Mere_mehboob_part_1_(mp3.pm).mp3"],
+  ["Wiring Wale Yaar", "Electrician Work Mode", "song2.mp3"],
+  ["Switch On • Mood On", "Power Vibes", "song3.mp3"],
+  ["Roshni Ka Hunar", "Electrician Playlist", "song4.mp3"],
+  ["Kaam Apna, Attitude Alag", "Desi Work Mix", "song5.mp3"],
+  ["Meter Se Mood Tak", "Electrician Night Mix", "song6.mp3"]
 ];
 
 let idx = 0;
-let audio = null;
+const audio = new Audio();
 
 const list = document.querySelector("#list");
-const title = document.querySelector("#title");
-const artist = document.querySelector("#artist");
-const play = document.querySelector("#play");
+const title = document.querySelector("#nowTitle");
+const artist = document.querySelector("#nowArtist");
+const playBtn = document.querySelector("#play");
+const prevBtn = document.querySelector("#prev");
+const nextBtn = document.querySelector("#next");
+const bar = document.querySelector("#bar");
+const cur = document.querySelector("#cur");
+const dur = document.querySelector("#dur");
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return "0:00";
+
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
+}
 
 function render() {
   if (!list) return;
 
   list.innerHTML = tracks.map((t, i) => `
-    <div class="track" onclick="selectTrack(${i})">
+    <div class="track ${i === idx ? "active" : ""}" onclick="selectTrack(${i})">
       <b>${String(i + 1).padStart(2, "0")}</b>
       <span>
         <strong>${t[0]}</strong>
-        <small>${t[1]} • ${t[2]}</small>
+        <small>${t[1]}</small>
       </span>
     </div>
   `).join("");
 }
 
-function selectTrack(i) {
+function selectTrack(i, autoPlay = true) {
   idx = i;
 
-  if (title) title.textContent = tracks[i][0];
-  if (artist) artist.textContent = tracks[i][1];
+  const track = tracks[idx];
 
-  if (audio) {
-    audio.pause();
-    audio = null;
+  title.textContent = track[0];
+  artist.textContent = track[1];
+
+  audio.pause();
+  audio.currentTime = 0;
+  audio.src = encodeURI(track[2]);
+  audio.load();
+
+  cur.textContent = "0:00";
+  dur.textContent = "0:00";
+  bar.style.width = "0%";
+
+  render();
+
+  if (autoPlay) {
+    audio.play()
+      .then(() => {
+        playBtn.textContent = "Ⅱ";
+      })
+      .catch(() => {
+        playBtn.textContent = "▶";
+        alert("MP3 file nahi mil rahi. GitHub me filename check karo.");
+      });
   }
+}
 
-  if (!tracks[i][3]) {
-    alert("Is track ki MP3 file abhi add nahi ki gayi hai.");
+function togglePlay() {
+  if (!audio.src) {
+    selectTrack(idx, true);
     return;
   }
 
-  audio = new Audio(encodeURI(tracks[i][3]));
-  audio.play().catch(() => {
-    alert("Play karne ke liye dobara Play button dabayein.");
-  });
+  if (audio.paused) {
+    audio.play()
+      .then(() => {
+        playBtn.textContent = "Ⅱ";
+      })
+      .catch(() => {
+        playBtn.textContent = "▶";
+      });
+  } else {
+    audio.pause();
+    playBtn.textContent = "▶";
+  }
 }
 
-if (play) {
-  play.onclick = () => {
-    if (!tracks[idx][3]) {
-      alert("Music chalane ke liye MP3 file ka URL/file name add karein.");
-      return;
-    }
-
-    if (!audio) {
-      selectTrack(idx);
-    } else if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
-  };
+function nextTrack() {
+  idx = (idx + 1) % tracks.length;
+  selectTrack(idx, true);
 }
 
-const next = document.querySelector("#next");
-if (next) {
-  next.onclick = () => {
-    selectTrack((idx + 1) % tracks.length);
-  };
+function prevTrack() {
+  idx = (idx - 1 + tracks.length) % tracks.length;
+  selectTrack(idx, true);
 }
 
-const prev = document.querySelector("#prev");
-if (prev) {
-  prev.onclick = () => {
-    selectTrack((idx - 1 + tracks.length) % tracks.length);
-  };
-}
+/* Play / Pause */
+playBtn.addEventListener("click", togglePlay);
 
-render();
+/* Previous / Next */
+prevBtn.addEventListener("click", prevTrack);
+nextBtn.addEventListener("click", nextTrack);
+
+/* Audio duration load hone ke baad */
+audio.addEventListener("loadedmetadata", () => {
+  dur.textContent = formatTime(audio.duration);
+});
+
+/* Time + progress bar */
+audio.addEventListener("timeupdate", () => {
+  cur.textContent = formatTime(audio.currentTime);
+
+  if (audio.duration) {
+    const percent = (audio.currentTime / audio.duration) * 100;
+    bar.style.width = `${percent}%`;
+  }
+});
+
+/* Song khatam → next song */
+audio.addEventListener("ended", () => {
+  nextTrack();
+});
+
+/* Browser ke pause/play ke according button */
+audio.addEventListener("play", () => {
+  playBtn.textContent = "Ⅱ";
+});
+
+audio.addEventListener("pause", () => {
+  playBtn.textContent = "▶";
+});
+
+/* First song select karo, lekin automatically play mat karo */
+selectTrack(0, false);
+const progressLine = document.querySelector(".line");
+
+progressLine.addEventListener("click", (e) => {
+  if (!audio.duration) return;
+
+  const rect = progressLine.getBoundingClientRect();
+  const percent = (e.clientX - rect.left) / rect.width;
+
+  audio.currentTime = percent * audio.duration;
+});
